@@ -136,7 +136,7 @@ class ConfiguratorTest extends PHPUnit_Framework_TestCase
         $config = ConfigurationFactory::fromJson((new ConfigurationSerializer($config))->toJson(), eVersion::V_2_2_10());
         $config = ConfigurationFactory::fromString((new ConfigurationSerializer($config))->toString(), eVersion::V_2_2_10());
 
-        $hash = md5((string) $config);
+        $hash = md5((new ConfigurationSerializer($config))->toString());
 
         static::assertEquals($referenceHash, $hash);
     }
