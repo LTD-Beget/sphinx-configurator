@@ -80,7 +80,7 @@ class ArraySerializer
      */
     private function serializeSource()
     {
-        foreach ($this->objectConfiguration->iterateSource() as $source) {
+        foreach ($this->objectConfiguration->iterateSources() as $source) {
             $this->arrayConfiguration[] = $source->toArray();
         }
     }

@@ -21,7 +21,7 @@ final class PlainSerializer
      * @var string
      */
     private $string = '';
-    
+
     /**
      * @var Configuration
      */
@@ -72,7 +72,7 @@ final class PlainSerializer
      */
     private function serializeSources()
     {
-        foreach ($this->object->iterateSource() as $source) {
+        foreach ($this->object->iterateSources() as $source) {
             $this->string .= (string) $source;
         }
     }

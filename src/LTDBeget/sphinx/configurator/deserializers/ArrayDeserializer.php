@@ -9,6 +9,7 @@ namespace LTDBeget\sphinx\configurator\deserializers;
 
 use LTDBeget\sphinx\configurator\Configuration;
 use LTDBeget\sphinx\configurator\configurationEntities\base\Section;
+use LTDBeget\sphinx\configurator\ConfigurationHelper;
 use LTDBeget\sphinx\configurator\exceptions\DeserializeException;
 use LTDBeget\sphinx\enums\base\eOption;
 use LTDBeget\sphinx\enums\eSection;
@@ -107,10 +108,10 @@ final class ArrayDeserializer
                 $section = $this->objectConfiguration->getCommon();
                 break;
             case eSection::SOURCE:
-                $section = $this->objectConfiguration->addSource($name, $inheritance);
+                $section = ConfigurationHelper::createSource($this->objectConfiguration, $name, $inheritance);
                 break;
             case eSection::INDEX:
-                $section = $this->objectConfiguration->addIndex($name, $inheritance);
+                $section = $this->objectConfiguration->createIndex($name, $inheritance);
                 break;
             default:
                 throw new DeserializeException('Unknown section type');

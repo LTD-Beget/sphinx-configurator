@@ -12,9 +12,6 @@ use LTDBeget\sphinx\configurator\configurationEntities\sections\Index;
 use LTDBeget\sphinx\configurator\configurationEntities\sections\Indexer;
 use LTDBeget\sphinx\configurator\configurationEntities\sections\Searchd;
 use LTDBeget\sphinx\configurator\configurationEntities\sections\Source;
-use LTDBeget\sphinx\configurator\deserializers\ArrayDeserializer;
-use LTDBeget\sphinx\configurator\deserializers\JsonDeserializer;
-use LTDBeget\sphinx\configurator\deserializers\PlainDeserializer;
 use LTDBeget\sphinx\configurator\exceptions\ConfigurationException;
 use LTDBeget\sphinx\configurator\serializers\ArraySerializer;
 use LTDBeget\sphinx\configurator\serializers\JsonSerializer;
@@ -31,63 +28,33 @@ use LTDBeget\sphinx\informer\Informer;
 class Configuration
 {
     /**
-     * @param string   $plainData
-     * @param eVersion $version
-     *
-     * @return Configuration
-     * @throws \Hoa\Ustring\Exception
-     * @throws \LTDBeget\sphinx\configurator\exceptions\SectionException
-     * @throws \LogicException
-     * @throws \InvalidArgumentException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\ConfigurationException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\DeserializeException
-     * @throws \LTDBeget\sphinx\SyntaxErrorException
-     * @throws \BadMethodCallException
-     * @throws \LTDBeget\sphinx\informer\exceptions\DocumentationSourceException
-     * @throws \Symfony\Component\Yaml\Exception\ParseException
+     * @var eVersion
      */
-    public static function fromString(string $plainData, eVersion $version) : Configuration
-    {
-        return PlainDeserializer::deserialize($plainData, new self($version));
-    }
-
+    private $version;
     /**
-     * @param array    $plainData
-     * @param eVersion $version
-     *
-     * @return Configuration
-     * @throws \LTDBeget\sphinx\configurator\exceptions\SectionException
-     * @throws \LogicException
-     * @throws \InvalidArgumentException
-     * @throws \BadMethodCallException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\ConfigurationException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\DeserializeException
-     * @throws \Symfony\Component\Yaml\Exception\ParseException
-     * @throws \LTDBeget\sphinx\informer\exceptions\DocumentationSourceException
+     * @var Informer
      */
-    public static function fromArray(array $plainData, eVersion $version) : Configuration
-    {
-        return ArrayDeserializer::deserialize($plainData, new self($version));
-    }
-
+    private $informer;
     /**
-     * @param string   $plainData
-     * @param eVersion $version
-     *
-     * @return Configuration
-     * @throws \LTDBeget\sphinx\configurator\exceptions\SectionException
-     * @throws \LogicException
-     * @throws \InvalidArgumentException
-     * @throws \BadMethodCallException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\ConfigurationException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\DeserializeException
-     * @throws \LTDBeget\sphinx\informer\exceptions\DocumentationSourceException
-     * @throws \Symfony\Component\Yaml\Exception\ParseException
+     * @var Source[]
      */
-    public static function fromJson(string $plainData, eVersion $version) : Configuration
-    {
-        return JsonDeserializer::deserialize($plainData, new self($version));
-    }
+    private $sources = [];
+    /**
+     * @var Index[]
+     */
+    private $indexes = [];
+    /**
+     * @var Indexer
+     */
+    private $indexer;
+    /**
+     * @var Searchd
+     */
+    private $searchd;
+    /**
+     * @var Common
+     */
+    private $common;
 
     /**
      * Configuration constructor.
@@ -99,87 +66,23 @@ class Configuration
      */
     public function __construct(eVersion $version)
     {
-        $this->version  = $version;
+        // todo: version is not needed, Informer should be passed
+        $this->version = $version;
         $this->informer = Informer::get($this->version);
     }
 
-    /**
-     * @return string
-     */
-    public function __toString() : string
+    public function addSource(Source $source)
     {
-        try {
-            $string = PlainSerializer::serialize($this);
-        } catch (\Exception $e) {
-            $string = '';
-        }
-
-        return $string;
-    }
-
-    /**
-     * @return array
-     * @throws \InvalidArgumentException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\SectionException
-     * @throws \LogicException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\ConfigurationException
-     */
-    public function toArray() : array
-    {
-        return ArraySerializer::serialize($this);
-    }
-
-    /**
-     * @return string
-     * @throws \LogicException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\SectionException
-     * @throws \InvalidArgumentException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\ConfigurationException
-     */
-    public function toJson() : string
-    {
-        return JsonSerializer::serialize($this);
-    }
-
-    /**
-     * @return Informer
-     */
-    public function getInformer() : Informer
-    {
-        return $this->informer;
-    }
-
-    /**
-     * @return eVersion
-     */
-    public function getVersion() : eVersion
-    {
-        return $this->version;
-    }
-
-    /**
-     * @param string      $name
-     * @param string|null $inheritanceName
-     *
-     * @return Source
-     * @throws \LTDBeget\sphinx\configurator\exceptions\SectionException
-     * @throws \LogicException
-     * @throws \InvalidArgumentException
-     * @throws \BadMethodCallException
-     */
-    public function addSource(string $name, string $inheritanceName = NULL) : Source
-    {
-        $source          = new Source($this, $name, $inheritanceName);
+        // todo: check name uniqueness
         $this->sources[] = $source;
-
-        return $source;
     }
 
     /**
      * @return Source[]
      */
-    public function iterateSource()
+    public function iterateSources()
     {
+        // todo: replace with conditional iterator
         foreach ($this->sources as $source) {
             if (!$source->isDeleted()) {
                 yield $source;
@@ -197,7 +100,7 @@ class Configuration
      * @throws \InvalidArgumentException
      * @throws \BadMethodCallException
      */
-    public function addIndex(string $name, string $inheritanceName = NULL) : Index
+    public function createIndex(string $name, string $inheritanceName = null): Index
     {
         $indexDefinition = new Index($this, $name, $inheritanceName);
         $this->indexes[] = $indexDefinition;
@@ -218,19 +121,9 @@ class Configuration
     }
 
     /**
-     * @param eSection $section
-     *
-     * @return bool
-     */
-    public function isAllowedSection(eSection $section) : bool
-    {
-        return $this->informer->isSectionExist($section);
-    }
-
-    /**
      * @return Indexer
      */
-    public function getIndexer() : Indexer
+    public function getIndexer(): Indexer
     {
         if (!$this->isHasIndexer()) {
             $this->initIndexer();
@@ -240,9 +133,28 @@ class Configuration
     }
 
     /**
+     * @return bool
+     */
+    public function isHasIndexer(): bool
+    {
+        return null !== $this->indexer && !$this->indexer->isDeleted();
+    }
+
+    /**
+     * @internal
+     * @return Configuration
+     */
+    private function initIndexer(): self
+    {
+        $this->indexer = new Indexer($this);
+
+        return $this;
+    }
+
+    /**
      * @return Searchd
      */
-    public function getSearchd() : Searchd
+    public function getSearchd(): Searchd
     {
         if (!$this->isHasSearchd()) {
             $this->initSearchd();
@@ -252,10 +164,29 @@ class Configuration
     }
 
     /**
+     * @return bool
+     */
+    public function isHasSearchd(): bool
+    {
+        return null !== $this->searchd && !$this->searchd->isDeleted();
+    }
+
+    /**
+     * @internal
+     * @return Configuration
+     */
+    private function initSearchd(): self
+    {
+        $this->searchd = new Searchd($this);
+
+        return $this;
+    }
+
+    /**
      * @return Common
      * @throws \LTDBeget\sphinx\configurator\exceptions\ConfigurationException
      */
-    public function getCommon() : Common
+    public function getCommon(): Common
     {
         $section = eSection::COMMON();
         if (!$this->isAllowedSection($section)) {
@@ -270,56 +201,28 @@ class Configuration
     }
 
     /**
+     * @param eSection $section
+     *
      * @return bool
      */
-    public function isHasIndexer() : bool
+    public function isAllowedSection(eSection $section): bool
     {
-        return NULL !== $this->indexer && !$this->indexer->isDeleted();
+        return $this->informer->isSectionExist($section);
     }
 
     /**
      * @return bool
      */
-    public function isHasSearchd() : bool
+    public function isHasCommon(): bool
     {
-        return NULL !== $this->searchd && !$this->searchd->isDeleted();
-    }
-
-    /**
-     * @return bool
-     */
-    public function isHasCommon() : bool
-    {
-        return NULL !== $this->common && !$this->common->isDeleted();
+        return null !== $this->common && !$this->common->isDeleted();
     }
 
     /**
      * @internal
      * @return Configuration
      */
-    private function initIndexer() : self
-    {
-        $this->indexer = new Indexer($this);
-
-        return $this;
-    }
-
-    /**
-     * @internal
-     * @return Configuration
-     */
-    private function initSearchd() : self
-    {
-        $this->searchd = new Searchd($this);
-
-        return $this;
-    }
-
-    /**
-     * @internal
-     * @return Configuration
-     */
-    private function initCommon() : self
+    private function initCommon(): self
     {
         $this->common = new Common($this);
 
@@ -327,37 +230,56 @@ class Configuration
     }
 
     /**
-     * @var eVersion
+     * @return Informer
      */
-    private $version;
+    public function getInformer(): Informer
+    {
+        return $this->informer;
+    }
 
     /**
-     * @var Informer
+     * @return eVersion
      */
-    private $informer;
+    public function getVersion(): eVersion
+    {
+        return $this->version;
+    }
 
     /**
-     * @var Source[]
+     * @return string
      */
-    private $sources = [];
+    public function __toString(): string
+    {
+        try {
+            $string = PlainSerializer::serialize($this);
+        } catch (\Exception $e) {
+            $string = '';
+        }
+
+        return $string;
+    }
 
     /**
-     * @var Index[]
+     * @return array
+     * @throws \InvalidArgumentException
+     * @throws \LTDBeget\sphinx\configurator\exceptions\SectionException
+     * @throws \LogicException
+     * @throws \LTDBeget\sphinx\configurator\exceptions\ConfigurationException
      */
-    private $indexes = [];
+    public function toArray(): array
+    {
+        return ArraySerializer::serialize($this);
+    }
 
     /**
-     * @var Indexer
+     * @return string
+     * @throws \LogicException
+     * @throws \LTDBeget\sphinx\configurator\exceptions\SectionException
+     * @throws \InvalidArgumentException
+     * @throws \LTDBeget\sphinx\configurator\exceptions\ConfigurationException
      */
-    private $indexer;
-
-    /**
-     * @var Searchd
-     */
-    private $searchd;
-
-    /**
-     * @var Common
-     */
-    private $common;
+    public function toJson(): string
+    {
+        return JsonSerializer::serialize($this);
+    }
 }

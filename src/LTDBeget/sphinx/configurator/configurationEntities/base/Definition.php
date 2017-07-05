@@ -219,7 +219,7 @@ abstract class Definition extends Section
                 $iterator = $this->getConfiguration()->iterateIndex();
                 break;
             case eSection::SOURCE:
-                $iterator = $this->getConfiguration()->iterateSource();
+                $iterator = $this->getConfiguration()->iterateSources();
                 break;
             default:
                 throw new LogicException("Unknown type {$this->getType()}");

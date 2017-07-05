@@ -1,5 +1,6 @@
 <?php
-use LTDBeget\sphinx\configurator\Configuration;
+
+use LTDBeget\sphinx\configurator\ConfigurationFactory;
 use LTDBeget\sphinx\enums\eSection;
 use LTDBeget\sphinx\enums\eVersion;
 use LTDBeget\sphinx\enums\options\eCommonOption;
@@ -50,13 +51,13 @@ class InformerTest extends PHPUnit_Framework_TestCase
     {
         $config_path = __DIR__. '/../sphinx/conf/valid.example.conf';
         $plain_config = file_get_contents($config_path);
-        $config = Configuration::fromString($plain_config, eVersion::V_2_2_10());
+        $config = ConfigurationFactory::fromString($plain_config, eVersion::V_2_2_10());
         foreach($config->iterateIndex() as $section) {
             foreach($section->iterateOptions() as $option) {
                 $option->getInfo();
             }
         }
-        foreach($config->iterateSource() as $section) {
+        foreach($config->iterateSources() as $section) {
             foreach($section->iterateOptions() as $option) {
                 $option->getInfo();
             }
