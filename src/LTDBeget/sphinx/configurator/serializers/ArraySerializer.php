@@ -8,6 +8,7 @@
 namespace LTDBeget\sphinx\configurator\serializers;
 
 use LTDBeget\sphinx\configurator\Configuration;
+use LTDBeget\sphinx\configurator\ConfigurationHelper;
 
 /**
  * Class ArraySerializer
@@ -93,7 +94,7 @@ class ArraySerializer
      */
     private function serializeIndex()
     {
-        foreach ($this->objectConfiguration->iterateIndex() as $index) {
+        foreach ($this->objectConfiguration->iterateIndexes() as $index) {
             $this->arrayConfiguration[] = $index->toArray();
         }
     }
@@ -105,8 +106,8 @@ class ArraySerializer
      */
     private function serializeIndexer()
     {
-        if ($this->objectConfiguration->isHasIndexer()) {
-            $this->arrayConfiguration[] = $this->objectConfiguration->getIndexer()->toArray();
+        if ($this->objectConfiguration->hasIndexer()) {
+            $this->arrayConfiguration[] = ConfigurationHelper::getOrCreateIndexer($this->objectConfiguration)->toArray();
         }
     }
 
@@ -117,8 +118,8 @@ class ArraySerializer
      */
     private function serializeSearchhd()
     {
-        if ($this->objectConfiguration->isHasSearchd()) {
-            $this->arrayConfiguration[] = $this->objectConfiguration->getSearchd()->toArray();
+        if ($this->objectConfiguration->hasSearchd()) {
+            $this->arrayConfiguration[] = ConfigurationHelper::getOrCreateSearchd($this->objectConfiguration)->toArray();
         }
     }
 
@@ -130,8 +131,8 @@ class ArraySerializer
      */
     private function serializeCommon()
     {
-        if ($this->objectConfiguration->isHasCommon()) {
-            $this->arrayConfiguration[] = $this->objectConfiguration->getCommon()->toArray();
+        if ($this->objectConfiguration->hasCommon()) {
+            $this->arrayConfiguration[] = ConfigurationHelper::getOrCreateCommon($this->objectConfiguration)->toArray();
         }
     }
 }

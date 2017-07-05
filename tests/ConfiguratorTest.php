@@ -8,6 +8,7 @@
 use LTDBeget\sphinx\configurator\Configuration;
 use LTDBeget\sphinx\configurator\ConfigurationFactory;
 use LTDBeget\sphinx\configurator\ConfigurationHelper;
+use LTDBeget\sphinx\configurator\ConfigurationSerializer;
 use LTDBeget\sphinx\enums\eVersion;
 use LTDBeget\sphinx\enums\options\eIndexOption;
 
@@ -118,7 +119,7 @@ class ConfiguratorTest extends PHPUnit_Framework_TestCase
     public function testAddPermanentlyRemovedOption()
     {
         /** @noinspection ExceptionsAnnotatingAndHandlingInspection */
-        $index = (new Configuration(eVersion::V_2_2_10()))->createIndex('valid_name');
+        $index = ConfigurationHelper::createIndex(new Configuration(eVersion::V_2_2_10()), 'valid_name');
         /** @noinspection ExceptionsAnnotatingAndHandlingInspection */
         $index->addOption(eIndexOption::CHARSET_TYPE(), "utf-8");
     }
@@ -132,9 +133,9 @@ class ConfiguratorTest extends PHPUnit_Framework_TestCase
 
 
         $config = ConfigurationFactory::fromString($plain_config, eVersion::V_2_2_10());
-        $config = ConfigurationFactory::fromArray($config->toArray(), eVersion::V_2_2_10());
-        $config = ConfigurationFactory::fromJson($config->toJson(), eVersion::V_2_2_10());
-        $config = ConfigurationFactory::fromString((string)$config, eVersion::V_2_2_10());
+        $config = ConfigurationFactory::fromArray((new ConfigurationSerializer($config))->toArray(), eVersion::V_2_2_10());
+        $config = ConfigurationFactory::fromJson((new ConfigurationSerializer($config))->toJson(), eVersion::V_2_2_10());
+        $config = ConfigurationFactory::fromString((new ConfigurationSerializer($config))->toString(), eVersion::V_2_2_10());
 
         $hash = md5((string) $config);
 
@@ -147,23 +148,23 @@ class ConfiguratorTest extends PHPUnit_Framework_TestCase
         $plain_config = file_get_contents($config_path);
 
         $config = ConfigurationFactory::fromString($plain_config, eVersion::V_2_2_10());
-        foreach($config->iterateIndex() as $section) {
+        foreach($config->iterateIndexes() as $section) {
             $section->delete();
         }
         foreach($config->iterateSources() as $section) {
             $section->delete();
         }
 
-        if($config->isHasIndexer()) {
-            $config->getIndexer()->delete();
+        if($config->hasIndexer()) {
+            ConfigurationHelper::getOrCreateIndexer($config)->delete();
         }
 
-        if($config->isHasSearchd()) {
-            $config->getSearchd()->delete();
+        if($config->hasSearchd()) {
+            ConfigurationHelper::getOrCreateSearchd($config)->delete();
         }
 
-        if($config->isHasCommon()) {
-            foreach($config->getCommon()->iterateOptions() as $option) {
+        if($config->hasCommon()) {
+            foreach(ConfigurationHelper::getOrCreateCommon($config)->iterateOptions() as $option) {
                 $option->delete();
             }
         }

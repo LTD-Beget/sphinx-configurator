@@ -13,9 +13,6 @@ use LTDBeget\sphinx\configurator\configurationEntities\sections\Indexer;
 use LTDBeget\sphinx\configurator\configurationEntities\sections\Searchd;
 use LTDBeget\sphinx\configurator\configurationEntities\sections\Source;
 use LTDBeget\sphinx\configurator\exceptions\ConfigurationException;
-use LTDBeget\sphinx\configurator\serializers\ArraySerializer;
-use LTDBeget\sphinx\configurator\serializers\JsonSerializer;
-use LTDBeget\sphinx\configurator\serializers\PlainSerializer;
 use LTDBeget\sphinx\enums\eSection;
 use LTDBeget\sphinx\enums\eVersion;
 use LTDBeget\sphinx\informer\Informer;
@@ -71,9 +68,30 @@ class Configuration
         $this->informer = Informer::get($this->version);
     }
 
+    public function getSearchd()
+    {
+        if (!$this->hasSearchd()) {
+            return null;
+        }
+
+        return $this->searchd;
+    }
+
+    public function setSearchd(Searchd $searchd)
+    {
+        // todo: clone?
+        $this->searchd = $searchd;
+    }
+
+    public function hasSearchd(): bool
+    {
+        return null !== $this->searchd && !$this->searchd->isDeleted();
+    }
+
     public function addSource(Source $source)
     {
-        // todo: check name uniqueness
+        // todo: check source name uniqueness
+        // todo: clone?
         $this->sources[] = $source;
     }
 
@@ -90,29 +108,19 @@ class Configuration
         }
     }
 
-    /**
-     * @param string      $name
-     * @param string|null $inheritanceName
-     *
-     * @return Index
-     * @throws \LTDBeget\sphinx\configurator\exceptions\SectionException
-     * @throws \LogicException
-     * @throws \InvalidArgumentException
-     * @throws \BadMethodCallException
-     */
-    public function createIndex(string $name, string $inheritanceName = null): Index
+    public function addIndex(Index $index)
     {
-        $indexDefinition = new Index($this, $name, $inheritanceName);
-        $this->indexes[] = $indexDefinition;
-
-        return $indexDefinition;
+        // todo: check index name uniqueness
+        // todo: clone?
+        $this->indexes[] = $index;
     }
 
     /**
      * @return Index[]
      */
-    public function iterateIndex()
+    public function iterateIndexes()
     {
+        // todo: replace with conditional iterator
         foreach ($this->indexes as $index) {
             if (!$index->isDeleted()) {
                 yield $index;
@@ -120,166 +128,69 @@ class Configuration
         }
     }
 
-    /**
-     * @return Indexer
-     */
-    public function getIndexer(): Indexer
+    public function getIndexer()
     {
-        if (!$this->isHasIndexer()) {
-            $this->initIndexer();
+        if (!$this->hasIndexer()) {
+            return null;
         }
 
         return $this->indexer;
     }
 
-    /**
-     * @return bool
-     */
-    public function isHasIndexer(): bool
+    public function setIndexer(Indexer $indexer)
+    {
+        // todo: clone?
+        $this->indexer = $indexer;
+    }
+
+    public function hasIndexer(): bool
     {
         return null !== $this->indexer && !$this->indexer->isDeleted();
     }
 
-    /**
-     * @internal
-     * @return Configuration
-     */
-    private function initIndexer(): self
+    public function getCommon()
     {
-        $this->indexer = new Indexer($this);
-
-        return $this;
-    }
-
-    /**
-     * @return Searchd
-     */
-    public function getSearchd(): Searchd
-    {
-        if (!$this->isHasSearchd()) {
-            $this->initSearchd();
-        }
-
-        return $this->searchd;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isHasSearchd(): bool
-    {
-        return null !== $this->searchd && !$this->searchd->isDeleted();
-    }
-
-    /**
-     * @internal
-     * @return Configuration
-     */
-    private function initSearchd(): self
-    {
-        $this->searchd = new Searchd($this);
-
-        return $this;
-    }
-
-    /**
-     * @return Common
-     * @throws \LTDBeget\sphinx\configurator\exceptions\ConfigurationException
-     */
-    public function getCommon(): Common
-    {
-        $section = eSection::COMMON();
-        if (!$this->isAllowedSection($section)) {
-            throw new ConfigurationException("Sphinx of version {$this->version} does't have section {$section}");
-        }
-
-        if (!$this->isHasCommon()) {
-            $this->initCommon();
+        if (!$this->hasCommon()) {
+            return null;
         }
 
         return $this->common;
     }
 
     /**
-     * @param eSection $section
+     * @param \LTDBeget\sphinx\configurator\configurationEntities\sections\Common $common
      *
-     * @return bool
+     * @throws \LTDBeget\sphinx\configurator\exceptions\ConfigurationException
      */
+    public function setCommon(Common $common)
+    {
+        $section = eSection::COMMON();
+        if (!$this->isAllowedSection($section)) {
+            $version = $this->getVersion();
+            throw new ConfigurationException("Sphinx of version {$version} does't have section {$section}");
+        }
+
+        // todo: clone?
+        $this->common = $common;
+    }
+
+    public function hasCommon(): bool
+    {
+        return null !== $this->common && !$this->common->isDeleted();
+    }
+
     public function isAllowedSection(eSection $section): bool
     {
         return $this->informer->isSectionExist($section);
     }
 
-    /**
-     * @return bool
-     */
-    public function isHasCommon(): bool
-    {
-        return null !== $this->common && !$this->common->isDeleted();
-    }
-
-    /**
-     * @internal
-     * @return Configuration
-     */
-    private function initCommon(): self
-    {
-        $this->common = new Common($this);
-
-        return $this;
-    }
-
-    /**
-     * @return Informer
-     */
-    public function getInformer(): Informer
-    {
-        return $this->informer;
-    }
-
-    /**
-     * @return eVersion
-     */
     public function getVersion(): eVersion
     {
         return $this->version;
     }
 
-    /**
-     * @return string
-     */
-    public function __toString(): string
+    public function getInformer(): Informer
     {
-        try {
-            $string = PlainSerializer::serialize($this);
-        } catch (\Exception $e) {
-            $string = '';
-        }
-
-        return $string;
-    }
-
-    /**
-     * @return array
-     * @throws \InvalidArgumentException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\SectionException
-     * @throws \LogicException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\ConfigurationException
-     */
-    public function toArray(): array
-    {
-        return ArraySerializer::serialize($this);
-    }
-
-    /**
-     * @return string
-     * @throws \LogicException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\SectionException
-     * @throws \InvalidArgumentException
-     * @throws \LTDBeget\sphinx\configurator\exceptions\ConfigurationException
-     */
-    public function toJson(): string
-    {
-        return JsonSerializer::serialize($this);
+        return $this->informer;
     }
 }

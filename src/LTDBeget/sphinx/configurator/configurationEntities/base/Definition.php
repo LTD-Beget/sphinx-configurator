@@ -216,7 +216,7 @@ abstract class Definition extends Section
     {
         switch ($this->getType()) {
             case eSection::INDEX:
-                $iterator = $this->getConfiguration()->iterateIndex();
+                $iterator = $this->getConfiguration()->iterateIndexes();
                 break;
             case eSection::SOURCE:
                 $iterator = $this->getConfiguration()->iterateSources();

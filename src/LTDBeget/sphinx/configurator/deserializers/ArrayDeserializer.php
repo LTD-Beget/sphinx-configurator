@@ -99,19 +99,19 @@ final class ArrayDeserializer
 
         switch ($type) {
             case eSection::INDEXER:
-                $section = $this->objectConfiguration->getIndexer();
+                $section = ConfigurationHelper::getOrCreateIndexer($this->objectConfiguration);
                 break;
             case eSection::SEARCHD:
-                $section = $this->objectConfiguration->getSearchd();
+                $section = ConfigurationHelper::getOrCreateSearchd($this->objectConfiguration);
                 break;
             case eSection::COMMON:
-                $section = $this->objectConfiguration->getCommon();
+                $section = ConfigurationHelper::getOrCreateCommon($this->objectConfiguration);
                 break;
             case eSection::SOURCE:
                 $section = ConfigurationHelper::createSource($this->objectConfiguration, $name, $inheritance);
                 break;
             case eSection::INDEX:
-                $section = $this->objectConfiguration->createIndex($name, $inheritance);
+                $section = ConfigurationHelper::createIndex($this->objectConfiguration, $name, $inheritance);
                 break;
             default:
                 throw new DeserializeException('Unknown section type');

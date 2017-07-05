@@ -52,7 +52,7 @@ class InformerTest extends PHPUnit_Framework_TestCase
         $config_path = __DIR__. '/../sphinx/conf/valid.example.conf';
         $plain_config = file_get_contents($config_path);
         $config = ConfigurationFactory::fromString($plain_config, eVersion::V_2_2_10());
-        foreach($config->iterateIndex() as $section) {
+        foreach($config->iterateIndexes() as $section) {
             foreach($section->iterateOptions() as $option) {
                 $option->getInfo();
             }
@@ -63,20 +63,20 @@ class InformerTest extends PHPUnit_Framework_TestCase
             }
         }
 
-        if($config->isHasIndexer()) {
-            foreach($config->getIndexer()->iterateOptions() as $option) {
+        if($config->hasIndexer()) {
+            foreach(Configuration::getIndexer($config)->iterateOptions() as $option) {
                 $option->getInfo();
             }
         }
 
-        if($config->isHasSearchd()) {
-            foreach($config->getSearchd()->iterateOptions() as $option) {
+        if($config->hasSearchd()) {
+            foreach(Configuration::getSearchd($config)->iterateOptions() as $option) {
                 $option->getInfo();
             }
         }
 
-        if($config->isHasCommon()) {
-            foreach($config->getCommon()->iterateOptions() as $option) {
+        if($config->hasCommon()) {
+            foreach(Configuration::getCommon($config)->iterateOptions() as $option) {
                 $option->getInfo();
             }
         }
