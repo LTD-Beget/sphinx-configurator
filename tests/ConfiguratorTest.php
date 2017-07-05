@@ -15,7 +15,6 @@ use LTDBeget\sphinx\enums\options\eIndexOption;
 /**
  * Class ConfiguratorTest
  */
-
 class ConfiguratorTest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -129,8 +128,8 @@ class ConfiguratorTest extends PHPUnit_Framework_TestCase
         $config_path = __DIR__. '/../sphinx/conf/valid.example.conf';
         $plain_config = file_get_contents($config_path);
 
-        $referenceHash = md5((string)ConfigurationFactory::fromString($plain_config, eVersion::V_2_2_10()));
-
+        $config = ConfigurationFactory::fromString($plain_config, eVersion::V_2_2_10());
+        $referenceHash = md5((new ConfigurationSerializer($config))->toString());
 
         $config = ConfigurationFactory::fromString($plain_config, eVersion::V_2_2_10());
         $config = ConfigurationFactory::fromArray((new ConfigurationSerializer($config))->toArray(), eVersion::V_2_2_10());
@@ -169,7 +168,7 @@ class ConfiguratorTest extends PHPUnit_Framework_TestCase
             }
         }
 
-        $hash = md5((string) $config);
+        $hash = md5((new ConfigurationSerializer($config))->toString());
 
         /** @noinspection SpellCheckingInspection */
         static::assertEquals('f26517544c25d8ef994622380a0afbe9', $hash);
@@ -182,7 +181,7 @@ class ConfiguratorTest extends PHPUnit_Framework_TestCase
 
         $config = ConfigurationFactory::fromString($plain_config, eVersion::V_2_2_10());
 
-        $hash = md5((string) $config);
+        $hash = md5((new ConfigurationSerializer($config))->toString());
 
         /** @noinspection SpellCheckingInspection */
         static::assertEquals('2b841aab6bf02ea10f3fdec82eee0872', $hash);

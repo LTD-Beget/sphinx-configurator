@@ -1,6 +1,7 @@
 <?php
 
 use LTDBeget\sphinx\configurator\ConfigurationFactory;
+use LTDBeget\sphinx\configurator\ConfigurationHelper;
 use LTDBeget\sphinx\enums\eSection;
 use LTDBeget\sphinx\enums\eVersion;
 use LTDBeget\sphinx\enums\options\eCommonOption;
@@ -64,19 +65,19 @@ class InformerTest extends PHPUnit_Framework_TestCase
         }
 
         if($config->hasIndexer()) {
-            foreach(Configuration::getIndexer($config)->iterateOptions() as $option) {
+            foreach(ConfigurationHelper::getOrCreateIndexer($config)->iterateOptions() as $option) {
                 $option->getInfo();
             }
         }
 
         if($config->hasSearchd()) {
-            foreach(Configuration::getSearchd($config)->iterateOptions() as $option) {
+            foreach(ConfigurationHelper::getOrCreateSearchd($config)->iterateOptions() as $option) {
                 $option->getInfo();
             }
         }
 
         if($config->hasCommon()) {
-            foreach(Configuration::getCommon($config)->iterateOptions() as $option) {
+            foreach(ConfigurationHelper::getOrCreateCommon($config)->iterateOptions() as $option) {
                 $option->getInfo();
             }
         }
