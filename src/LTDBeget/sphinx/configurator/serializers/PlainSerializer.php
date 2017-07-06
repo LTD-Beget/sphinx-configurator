@@ -8,6 +8,7 @@
 namespace LTDBeget\sphinx\configurator\serializers;
 
 use LTDBeget\sphinx\configurator\Configuration;
+use LTDBeget\sphinx\configurator\ConfigurationHelper;
 
 /**
  * Class PlainSerializer
@@ -21,7 +22,7 @@ final class PlainSerializer
      * @var string
      */
     private $string = '';
-    
+
     /**
      * @var Configuration
      */
@@ -72,7 +73,7 @@ final class PlainSerializer
      */
     private function serializeSources()
     {
-        foreach ($this->object->iterateSource() as $source) {
+        foreach ($this->object->iterateSources() as $source) {
             $this->string .= (string) $source;
         }
     }
@@ -82,7 +83,7 @@ final class PlainSerializer
      */
     private function serializeIndexes()
     {
-        foreach ($this->object->iterateIndex() as $index) {
+        foreach ($this->object->iterateIndexes() as $index) {
             $this->string .= (string) $index;
         }
     }
@@ -92,8 +93,8 @@ final class PlainSerializer
      */
     private function serializeIndexer()
     {
-        if ($this->object->isHasIndexer()) {
-            $this->string .= (string) $this->object->getIndexer();
+        if ($this->object->hasIndexer()) {
+            $this->string .= (string)ConfigurationHelper::getOrCreateIndexer($this->object);
         }
     }
 
@@ -102,8 +103,8 @@ final class PlainSerializer
      */
     private function serializeSearchd()
     {
-        if ($this->object->isHasSearchd()) {
-            $this->string .= (string) $this->object->getSearchd();
+        if ($this->object->hasSearchd()) {
+            $this->string .= (string)ConfigurationHelper::getOrCreateSearchd($this->object);
         }
     }
 
@@ -113,8 +114,8 @@ final class PlainSerializer
      */
     private function serializeCommon()
     {
-        if ($this->object->isHasCommon()) {
-            $this->string .= (string) $this->object->getCommon();
+        if ($this->object->hasCommon()) {
+            $this->string .= (string)ConfigurationHelper::getOrCreateCommon($this->object);
         }
     }
 }

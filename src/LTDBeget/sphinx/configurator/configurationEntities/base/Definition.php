@@ -216,10 +216,10 @@ abstract class Definition extends Section
     {
         switch ($this->getType()) {
             case eSection::INDEX:
-                $iterator = $this->getConfiguration()->iterateIndex();
+                $iterator = $this->getConfiguration()->iterateIndexes();
                 break;
             case eSection::SOURCE:
-                $iterator = $this->getConfiguration()->iterateSource();
+                $iterator = $this->getConfiguration()->iterateSources();
                 break;
             default:
                 throw new LogicException("Unknown type {$this->getType()}");

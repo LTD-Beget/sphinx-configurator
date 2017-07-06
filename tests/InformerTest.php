@@ -1,5 +1,7 @@
 <?php
-use LTDBeget\sphinx\configurator\Configuration;
+
+use LTDBeget\sphinx\configurator\ConfigurationFactory;
+use LTDBeget\sphinx\configurator\ConfigurationHelper;
 use LTDBeget\sphinx\enums\eSection;
 use LTDBeget\sphinx\enums\eVersion;
 use LTDBeget\sphinx\enums\options\eCommonOption;
@@ -50,32 +52,32 @@ class InformerTest extends PHPUnit_Framework_TestCase
     {
         $config_path = __DIR__. '/../sphinx/conf/valid.example.conf';
         $plain_config = file_get_contents($config_path);
-        $config = Configuration::fromString($plain_config, eVersion::V_2_2_10());
-        foreach($config->iterateIndex() as $section) {
+        $config = ConfigurationFactory::fromString($plain_config, eVersion::V_2_2_10());
+        foreach($config->iterateIndexes() as $section) {
             foreach($section->iterateOptions() as $option) {
                 $option->getInfo();
             }
         }
-        foreach($config->iterateSource() as $section) {
+        foreach($config->iterateSources() as $section) {
             foreach($section->iterateOptions() as $option) {
                 $option->getInfo();
             }
         }
 
-        if($config->isHasIndexer()) {
-            foreach($config->getIndexer()->iterateOptions() as $option) {
+        if($config->hasIndexer()) {
+            foreach(ConfigurationHelper::getOrCreateIndexer($config)->iterateOptions() as $option) {
                 $option->getInfo();
             }
         }
 
-        if($config->isHasSearchd()) {
-            foreach($config->getSearchd()->iterateOptions() as $option) {
+        if($config->hasSearchd()) {
+            foreach(ConfigurationHelper::getOrCreateSearchd($config)->iterateOptions() as $option) {
                 $option->getInfo();
             }
         }
 
-        if($config->isHasCommon()) {
-            foreach($config->getCommon()->iterateOptions() as $option) {
+        if($config->hasCommon()) {
+            foreach(ConfigurationHelper::getOrCreateCommon($config)->iterateOptions() as $option) {
                 $option->getInfo();
             }
         }

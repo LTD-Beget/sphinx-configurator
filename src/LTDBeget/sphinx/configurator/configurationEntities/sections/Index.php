@@ -52,7 +52,7 @@ class Index extends Definition
             }
         } while($index->isHasInheritance());
 
-        foreach ($this->getConfiguration()->iterateSource() as $source) {
+        foreach ($this->getConfiguration()->iterateSources() as $source) {
             if($source->getName() === $source_name) {
                 return $source;
             }
