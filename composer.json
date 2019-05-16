@@ -13,7 +13,7 @@
   ],
   "require": {
     "php": ">=7.0",
-    "symfony/yaml" : "3.0.*",
+    "symfony/yaml" : "3.4.*",
     "marc-mabe/php-enum" : "2.2.*",
     "ltd-beget/sphinx-configuration-tokenizer":"~1.0.3"
   },
