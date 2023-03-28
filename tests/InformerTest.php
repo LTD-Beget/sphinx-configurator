@@ -10,7 +10,7 @@ use LTDBeget\sphinx\informer\Informer;
  * @date: 20.03.16
  * @time: 16:01
  */
-class InformerTest extends PHPUnit_Framework_TestCase
+class InformerTest extends \PHPUnit\Framework\TestCase
 {
     public function testAllOptionInfo()
     {
@@ -34,12 +34,10 @@ class InformerTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * @expectedException \LTDBeget\sphinx\informer\exceptions\InformerRuntimeException
-     * @expectedExceptionMessage Sphinx of version 2.1.9 does't have section common
-     */
     public function testUnknownSection()
     {
+        $this->expectException(\LTDBeget\sphinx\informer\exceptions\InformerRuntimeException::class);
+        $this->expectExceptionMessage("Sphinx of version 2.1.9 does't have section common");
         /** @noinspection ExceptionsAnnotatingAndHandlingInspection */
         $informer = Informer::get(eVersion::V_2_1_9());
         /** @noinspection ExceptionsAnnotatingAndHandlingInspection */
